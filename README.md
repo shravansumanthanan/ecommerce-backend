@@ -207,6 +207,27 @@ To contribute:
 2. Make your changes
 3. Submit a pull request
 
-## Support
+## Database Structure
+![image](https://github.com/user-attachments/assets/6fe2651d-6af9-42a2-af0a-052ff6769e12)
 
-For support, please open an issue in the repository.
+![image](https://github.com/user-attachments/assets/9cdf0f8b-72ac-4b2e-9f6c-5bbace1b190e)
+
+![image](https://github.com/user-attachments/assets/4d17b322-3a2d-4a7e-8ac3-fcc6477bc565)
+
+![image](https://github.com/user-attachments/assets/44f2876f-619e-452e-9340-72abcdfb99a5)
+
+![image](https://github.com/user-attachments/assets/afd06b2b-c8b6-4e36-bdc9-cdb7acc09b01)
+
+![image](https://github.com/user-attachments/assets/eaae87be-b4cc-40de-b29c-fdfe8027b797)
+
+![image](https://github.com/user-attachments/assets/439a7907-c300-466f-b165-880439ef75b1)
+
+![image](https://github.com/user-attachments/assets/f961a7d9-3bea-4ccc-aa76-ba7dc7d03cf0)
+
+![image](https://github.com/user-attachments/assets/b75367ee-3d80-489c-b2d4-f3b87f0b92ca)
+
+![image](https://github.com/user-attachments/assets/0d85a8af-4bcb-456d-b2ba-26b74980c0b7)
+
+![image](https://github.com/user-attachments/assets/fffa9fc1-e97f-47f4-b53c-a61962e1c79e)
+
+![image](https://github.com/user-attachments/assets/b42f7606-2583-4dfa-8a86-678c49900561)
