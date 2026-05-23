@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: nexusmarket_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexusmarket_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - MONGO_URI=mongodb://mongodb:27017/ecommerce
+      - JWT_SECRET_KEY=super-secret-production-key-change-me
+      - STRIPE_API_KEY=sk_test_fake
+      - PORT=5000
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nexusmarket_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
