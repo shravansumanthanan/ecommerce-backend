@@ -1,70 +1,90 @@
-# E-Commerce Marketplace Backend
+# E-Commerce Marketplace (Full-Stack)
 
-A Flask-based e-commerce backend system with features like user authentication, product management, shopping cart, order processing, and coupon management.
+> A modern, fully containerized e-commerce platform featuring a Next.js storefront and a robust Flask backend.
 
-## Features
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-- User Authentication (JWT)
-- Product Management (CRUD operations)
-- Shopping Cart Management
-- Order Processing
-- Coupon/Discount System
-- Webhook Integration
-- Role-Based Access Control (Buyer/Seller)
+## Why This Exists
 
-## Prerequisites
+This project provides a production-ready, scalable foundation for an e-commerce marketplace. It abstracts away the complexity of managing authentication, shopping carts, and checkout logic, providing a seamless shopping experience out-of-the-box using a decoupled frontend/backend architecture.
 
-- Python 3.7+
-- MongoDB
-- pip (Python package manager)
+## Tech Stack
 
-## Setup Instructions
+- **Frontend:** Next.js (App Router), React, Tailwind CSS, Axios
+- **Backend:** Python, Flask, PyMongo, Flask-JWT-Extended, Marshmallow
+- **Database:** MongoDB
+- **Orchestration:** Docker & Docker Compose
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd ecommerce-backend
-```
+## Quick Start (Docker)
 
-2. Create and activate virtual environment:
-```bash
-python3 -m venv venv
-source venv/bin/activate  # For Unix/macOS
-# OR
-.\venv\Scripts\activate  # For Windows
-```
+The fastest way to run the entire stack (Frontend, Backend, and Database) is using Docker Compose.
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+**Prerequisites**: [Docker](https://docs.docker.com/get-docker/) and Git.
 
-4. Environment Configuration:
-Create a `.env` file in the root directory with the following variables:
-```
-FLASK_APP=app.py
-FLASK_ENV=development
-MONGO_URI=mongodb://localhost:27017/
-MONGO_DBNAME=ecommerce
-JWT_SECRET_KEY=your-secret-key
-```
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd ecommerce-backend
+   ```
 
-5. Start the application:
-```bash
-flask run
-```
+2. **Start the application**:
+   ```bash
+   docker-compose up --build -d
+   ```
 
-The server will start on `http://localhost:5000`
+3. **Access the platform**:
+   - **Storefront (Frontend)**: Navigate to `http://localhost:3000`
+   - **API (Backend)**: Running at `http://localhost:5000/api/v1`
 
-## API Usage Examples
+## Local Development (Without Docker)
 
-Here are some practical examples using curl commands to interact with the API:
+If you prefer to run the services individually for development:
+
+### Backend Setup
+1. Open a terminal in the project root:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+2. Create a `.env` file in the root directory:
+   ```env
+   FLASK_APP=app.py
+   FLASK_ENV=development
+   MONGO_URI=mongodb://localhost:27017/ecommerce
+   JWT_SECRET_KEY=your-secret-key-change-me
+   STRIPE_API_KEY=sk_test_fake
+   PORT=5000
+   ```
+3. Run the backend:
+   ```bash
+   flask run
+   ```
+
+### Frontend Setup
+1. Open a new terminal in the `frontend` directory:
+   ```bash
+   cd frontend
+   npm install
+   ```
+2. Create a `.env.local` file in the `frontend` directory:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+   ```
+3. Run the frontend:
+   ```bash
+   npm run dev
+   ```
+
+## API Reference
+
+The backend uses a `/api/v1` prefix. All authenticated requests require a JWT access token in the header.
 
 ### Authentication
 
-1. Register a new user:
+**Register a new user:**
 ```bash
-curl -X POST http://localhost:5000/register \
+curl -X POST http://localhost:5000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "john_doe",
@@ -74,22 +94,28 @@ curl -X POST http://localhost:5000/register \
   }'
 ```
 
-2. Login:
+**Login:**
 ```bash
-curl -X POST http://localhost:5000/login \
+curl -X POST http://localhost:5000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john@example.com",
     "password": "secure_password"
   }'
 ```
-Save the returned access token for subsequent requests.
+> **Note**: Save the returned access token. You will need to replace `YOUR_ACCESS_TOKEN` in subsequent requests with this token string.
 
 ### Product Management
 
-1. Create a product (Seller only):
+**Get all products:**
 ```bash
-curl -X POST http://localhost:5000/products \
+curl -X GET "http://localhost:5000/api/v1/products?page=1&per_page=20"
+```
+> **Note**: The response contains an `_id` field for each product. Use this ID to replace the `PRODUCT_ID` placeholder in cart and order requests.
+
+**Create a product (Seller only):**
+```bash
+curl -X POST http://localhost:5000/api/v1/products \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -d '{
@@ -100,21 +126,11 @@ curl -X POST http://localhost:5000/products \
   }'
 ```
 
-2. Get all products:
-```bash
-curl -X GET http://localhost:5000/products
-```
-
-3. Search products by category:
-```bash
-curl -X GET "http://localhost:5000/products/search?category=Electronics"
-```
-
 ### Shopping Cart
 
-1. Add item to cart:
+**Add item to cart:**
 ```bash
-curl -X POST http://localhost:5000/cart \
+curl -X POST http://localhost:5000/api/v1/cart \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -d '{
@@ -123,111 +139,78 @@ curl -X POST http://localhost:5000/cart \
   }'
 ```
 
-2. View cart:
+**View cart:**
 ```bash
-curl -X GET http://localhost:5000/cart \
+curl -X GET http://localhost:5000/api/v1/cart \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-### Coupon Management
-
-1. Create a coupon (Seller only):
-```bash
-curl -X POST http://localhost:5000/coupon \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -d '{
-    "code": "SUMMER2023",
-    "discount": 20
-  }'
-```
-
-2. Apply coupon:
-```bash
-curl -X POST http://localhost:5000/coupon/apply \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -d '{
-    "code": "SUMMER2023"
-  }'
-```
-
-### Order Processing
-
-Create an order:
-```bash
-curl -X POST http://localhost:5000/order \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -d '{
-    "payment_method": "credit_card"
-  }'
 ```
 
 ## Error Handling
 
-The API returns standard HTTP status codes:
-- 200: Success
-- 201: Created
-- 400: Bad Request
-- 401: Unauthorized
-- 403: Forbidden
-- 404: Not Found
-- 500: Internal Server Error
+The API returns standard HTTP status codes combined with structured JSON error responses. The frontend uses an Axios interceptor to catch and handle these errors automatically.
 
-Error responses include a message explaining the error:
+Example Error Response:
 ```json
 {
-    "error": "Error description here"
+    "success": false,
+    "message": "Validation Error",
+    "error": {
+        "email": ["Invalid email address"]
+    }
 }
 ```
 
-## Testing
+## Database Architecture
 
-Run the tests using:
-```bash
-python -m pytest
+The backend is supported by a NoSQL MongoDB schema. 
+
+```mermaid
+erDiagram
+    USERS ||--o{ ORDERS : places
+    USERS ||--|| CART : has
+    USERS ||--o{ PRODUCTS : sells
+    PRODUCTS ||--o{ CART_ITEMS : contains
+    PRODUCTS ||--o{ ORDER_ITEMS : contains
+    
+    USERS {
+        ObjectId _id
+        string username
+        string email
+        string password
+        string role "buyer or seller"
+    }
+    
+    PRODUCTS {
+        ObjectId _id
+        string name
+        string description
+        float price
+        int stock
+        string category
+        ObjectId seller_id
+    }
+    
+    CART {
+        ObjectId _id
+        ObjectId user_id
+        array items
+    }
+    
+    ORDERS {
+        ObjectId _id
+        ObjectId user_id
+        float total_price
+        string status
+        array items
+    }
+    
+    COUPONS {
+        ObjectId _id
+        string code
+        int discount
+    }
 ```
 
-## Logging
+## License
 
-Logs are stored in `ecommerce.log`. The logging level can be configured in `logging_config.py`.
-
-## Security Notes
-
-- All passwords are hashed before storage
-- JWT tokens expire after 24 hours
-- API endpoints are protected with role-based authentication
-- Input validation is implemented for all endpoints
-
-## Development
-
-To contribute:
-1. Create a new branch
-2. Make your changes
-3. Submit a pull request
-
-## Database Structure
-![image](https://github.com/user-attachments/assets/6fe2651d-6af9-42a2-af0a-052ff6769e12)
-
-![image](https://github.com/user-attachments/assets/9cdf0f8b-72ac-4b2e-9f6c-5bbace1b190e)
-
-![image](https://github.com/user-attachments/assets/4d17b322-3a2d-4a7e-8ac3-fcc6477bc565)
-
-![image](https://github.com/user-attachments/assets/44f2876f-619e-452e-9340-72abcdfb99a5)
-
-![image](https://github.com/user-attachments/assets/afd06b2b-c8b6-4e36-bdc9-cdb7acc09b01)
-
-![image](https://github.com/user-attachments/assets/eaae87be-b4cc-40de-b29c-fdfe8027b797)
-
-![image](https://github.com/user-attachments/assets/439a7907-c300-466f-b165-880439ef75b1)
-
-![image](https://github.com/user-attachments/assets/f961a7d9-3bea-4ccc-aa76-ba7dc7d03cf0)
-
-![image](https://github.com/user-attachments/assets/b75367ee-3d80-489c-b2d4-f3b87f0b92ca)
-
-![image](https://github.com/user-attachments/assets/0d85a8af-4bcb-456d-b2ba-26b74980c0b7)
-
-![image](https://github.com/user-attachments/assets/fffa9fc1-e97f-47f4-b53c-a61962e1c79e)
-
-![image](https://github.com/user-attachments/assets/b42f7606-2583-4dfa-8a86-678c49900561)
+MIT © E-Commerce Engineering Team
