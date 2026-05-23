@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
+import { Hero } from '@/components/ui/animated-hero';
 
 interface Product {
   _id: string;
@@ -33,14 +34,7 @@ export default function Home() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="text-center py-16">
-        <h1 className="text-5xl font-extrabold tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-          Welcome to NexusMarket
-        </h1>
-        <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-          Discover premium products with next-generation shopping experience.
-        </p>
-      </div>
+      <Hero />
 
       {loading ? (
         <div className="flex justify-center py-20">
@@ -54,9 +48,7 @@ export default function Home() {
                 {product.image_url ? (
                   <img src={product.image_url} alt={product.name} className="object-cover w-full h-64" />
                 ) : (
-                  <div className="w-full h-64 flex items-center justify-center bg-slate-700/50">
-                    <ShoppingCart className="h-12 w-12 text-slate-500" />
-                  </div>
+                  <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=1000" alt={product.name} className="object-cover w-full h-64 opacity-80" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition duration-300"></div>
               </div>
