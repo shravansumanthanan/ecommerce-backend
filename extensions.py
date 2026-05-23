@@ -10,6 +10,9 @@ class DatabaseManager:
         self.client = None
         self.db = None
 
+    def get_db(self):
+        return self.db
+
     def init_app(self, app):
         self.client = MongoClient(
             app.config['MONGO_URI'],
