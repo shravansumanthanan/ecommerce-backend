@@ -1,0 +1,19 @@
+# Environment Setup
+venv/
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Mac
+.DS_Store

@@ -1,14 +1,14 @@
-from pymongo import MongoClient
+from extensions import db_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, create_refresh_token
-from datetime import datetime
+from datetime import datetime, timezone
 from bson import ObjectId
 
-client = MongoClient('mongodb://localhost:27017/')
-db = client['ecommerce_db']
+def get_db():
+    return db_manager.get_db()
 
 class User:
-    def __init__(self, username, email, password, role):
+    def __init__(self, username, email, password, role='buyer'):
         self.username = username
         self.email = email
         self.password = generate_password_hash(password)
@@ -21,17 +21,20 @@ class User:
             'password': self.password,
             'role': self.role
         }
-        db.users.insert_one(user_data)
+        get_db().users.insert_one(user_data)
 
     @staticmethod
     def find_by_email(email):
-        return db.users.find_one({'email': email})
+        return get_db().users.find_one({'email': email})
 
     @staticmethod
     def find_by_id(user_id):
         if isinstance(user_id, str):
-            user_id = ObjectId(user_id)
-        user = db.users.find_one({'_id': user_id})
+            try:
+                user_id = ObjectId(user_id)
+            except Exception:
+                return None
+        user = get_db().users.find_one({'_id': user_id})
         if user:
             user['_id'] = str(user['_id'])
         return user
@@ -42,17 +45,19 @@ class User:
 
     @staticmethod
     def generate_tokens(user_id):
-        access_token = create_access_token(identity=user_id)
-        refresh_token = create_refresh_token(identity=user_id)
+        access_token = create_access_token(identity=str(user_id))
+        refresh_token = create_refresh_token(identity=str(user_id))
         return access_token, refresh_token
 
 class Product:
-    def __init__(self, name, description, price, category, seller_id):
+    def __init__(self, name, description, price, category, seller_id, stock=0, image_url=None):
         self.name = name
         self.description = description
         self.price = price
         self.category = category
         self.seller_id = seller_id
+        self.stock = stock
+        self.image_url = image_url
 
     def save(self):
         product_data = {
@@ -60,23 +65,32 @@ class Product:
             'description': self.description,
             'price': self.price,
             'category': self.category,
-            'seller_id': self.seller_id
+            'seller_id': self.seller_id,
+            'stock': self.stock,
+            'image_url': self.image_url,
+            'created_at': datetime.now(timezone.utc)
         }
-        result = db.products.insert_one(product_data)
+        result = get_db().products.insert_one(product_data)
         return str(result.inserted_id)
 
     @staticmethod
-    def find_all():
-        products = list(db.products.find())
+    def find_all(page=1, per_page=20):
+        skip = (page - 1) * per_page
+        cursor = get_db().products.find().sort('_id', -1).skip(skip).limit(per_page)
+        total = get_db().products.count_documents({})
+        products = list(cursor)
         for product in products:
             product['_id'] = str(product['_id'])
-        return products
+        return {'items': products, 'total': total, 'page': page, 'per_page': per_page}
 
     @staticmethod
     def find_by_id(product_id):
         if isinstance(product_id, str):
-            product_id = ObjectId(product_id)
-        product = db.products.find_one({'_id': product_id})
+            try:
+                product_id = ObjectId(product_id)
+            except Exception:
+                return None
+        product = get_db().products.find_one({'_id': product_id})
         if product:
             product['_id'] = str(product['_id'])
         return product
@@ -85,93 +99,108 @@ class Product:
     def update(product_id, update_data):
         if isinstance(product_id, str):
             product_id = ObjectId(product_id)
-        db.products.update_one({'_id': product_id}, {'$set': update_data})
+        get_db().products.update_one({'_id': product_id}, {'$set': update_data})
 
     @staticmethod
     def delete(product_id):
         if isinstance(product_id, str):
             product_id = ObjectId(product_id)
-        db.products.delete_one({'_id': product_id})
+        get_db().products.delete_one({'_id': product_id})
 
     @staticmethod
-    def find(query):
-        products = list(db.products.find(query))
+    def search(keywords=None, category=None, min_price=None, max_price=None, page=1, per_page=20):
+        query = {}
+        if category:
+            query['category'] = category
+        if min_price is not None or max_price is not None:
+            query['price'] = {}
+            if min_price is not None:
+                query['price']['$gte'] = float(min_price)
+            if max_price is not None:
+                query['price']['$lte'] = float(max_price)
+        if keywords:
+            query['$text'] = {'$search': keywords}
+            
+        skip = (page - 1) * per_page
+        cursor = get_db().products.find(query).skip(skip).limit(per_page)
+        total = get_db().products.count_documents(query)
+        products = list(cursor)
         for product in products:
             product['_id'] = str(product['_id'])
-        return products
+        return {'items': products, 'total': total, 'page': page, 'per_page': per_page}
 
 class Cart:
-    def __init__(self, user_id):
-        self.user_id = user_id
-        self.items = []
-
-    def add_item(self, product_id, quantity):
-        self.items.append({'product_id': product_id, 'quantity': quantity})
-
-    def remove_item(self, product_id):
-        self.items = [item for item in self.items if item['product_id'] != product_id]
-
-    def update_item(self, product_id, quantity):
-        for item in self.items:
-            if item['product_id'] == product_id:
-                item['quantity'] = quantity
-
-    def save(self):
-        cart_data = {
-            'user_id': self.user_id,
-            'items': self.items
-        }
-        db.carts.insert_one(cart_data)
-
     @staticmethod
     def find_by_user_id(user_id):
-        return db.carts.find_one({'user_id': user_id})
+        cart = get_db().carts.find_one({'user_id': user_id})
+        if cart:
+            cart['_id'] = str(cart['_id'])
+        return cart
 
     @staticmethod
-    def delete(cart_id):
-        db.carts.delete_one({'_id': cart_id})
+    def add_item(user_id, product_id, quantity):
+        # We need to either increment existing quantity or push new item
+        # But for simplicity in schema updates, if item exists, update it, else push
+        result = get_db().carts.update_one(
+            {'user_id': user_id, 'items.product_id': product_id},
+            {'$inc': {'items.$.quantity': quantity}}
+        )
+        if result.matched_count == 0:
+            get_db().carts.update_one(
+                {'user_id': user_id},
+                {'$push': {'items': {'product_id': product_id, 'quantity': quantity}}},
+                upsert=True
+            )
 
-    def apply_coupon(self, coupon):
-        # Implement apply coupon logic here
-        return 0
+    @staticmethod
+    def remove_item(user_id, product_id):
+        get_db().carts.update_one(
+            {'user_id': user_id},
+            {'$pull': {'items': {'product_id': product_id}}}
+        )
+
+    @staticmethod
+    def update_item(user_id, product_id, quantity):
+        get_db().carts.update_one(
+            {'user_id': user_id, 'items.product_id': product_id},
+            {'$set': {'items.$.quantity': quantity}}
+        )
+
+    @staticmethod
+    def delete(user_id):
+        get_db().carts.delete_one({'user_id': user_id})
 
 class Order:
-    def __init__(self, user_id, items, total_price, status='Pending'):
-        self.user_id = user_id
-        self.items = items
-        self.total_price = total_price
-        self.status = status
-        self.created_at = datetime.now(datetime.timezone.utc)
-
-    def save(self):
+    @staticmethod
+    def create(user_id, items, total_price):
         order_data = {
-            'user_id': self.user_id,
-            'items': self.items,
-            'total_price': self.total_price,
-            'status': self.status,
-            'created_at': self.created_at
+            'user_id': user_id,
+            'items': items,
+            'total_price': total_price,
+            'status': 'Pending',
+            'created_at': datetime.now(timezone.utc)
         }
-        db.orders.insert_one(order_data)
+        result = get_db().orders.insert_one(order_data)
+        return str(result.inserted_id)
 
     @staticmethod
-    def find_by_user_id(user_id):
-        return list(db.orders.find({'user_id': user_id}))
+    def find_by_user_id(user_id, page=1, per_page=20):
+        skip = (page - 1) * per_page
+        cursor = get_db().orders.find({'user_id': user_id}).sort('_id', -1).skip(skip).limit(per_page)
+        total = get_db().orders.count_documents({'user_id': user_id})
+        orders = list(cursor)
+        for order in orders:
+            order['_id'] = str(order['_id'])
+        return {'items': orders, 'total': total, 'page': page, 'per_page': per_page}
 
     @staticmethod
     def update_status(order_id, status):
-        db.orders.update_one({'_id': order_id}, {'$set': {'status': status}})
+        if isinstance(order_id, str):
+            order_id = ObjectId(order_id)
+        get_db().orders.update_one({'_id': order_id}, {'$set': {'status': status}})
 
 class Coupon:
-    def __init__(self, code, discount, expiration_date):
-        self.code = code
-        self.discount = discount
-        self.expiration_date = expiration_date
-
-    def save(self):
-        # Implement save logic here
-        pass
-
+    # Stub for now
     @staticmethod
     def find_by_code(code):
-        # Implement find logic here
         return None

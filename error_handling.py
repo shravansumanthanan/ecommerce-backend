@@ -1,22 +1,22 @@
-from flask import jsonify
+from utils import error_response
 
 def register_error_handlers(app):
     @app.errorhandler(400)
     def bad_request(error):
-        return jsonify({'message': 'Bad request', 'error': str(error)}), 400
+        return error_response(message='Bad request', status_code=400, details=str(error))
 
     @app.errorhandler(401)
     def unauthorized(error):
-        return jsonify({'message': 'Unauthorized', 'error': str(error)}), 401
+        return error_response(message='Unauthorized', status_code=401, details=str(error))
 
     @app.errorhandler(403)
     def forbidden(error):
-        return jsonify({'message': 'Forbidden', 'error': str(error)}), 403
+        return error_response(message='Forbidden', status_code=403, details=str(error))
 
     @app.errorhandler(404)
     def not_found(error):
-        return jsonify({'message': 'Not found', 'error': str(error)}), 404
+        return error_response(message='Not found', status_code=404, details=str(error))
 
     @app.errorhandler(500)
     def internal_server_error(error):
-        return jsonify({'message': 'Internal server error', 'error': str(error)}), 500
+        return error_response(message='Internal server error', status_code=500, details=str(error))

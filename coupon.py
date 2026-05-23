@@ -1,35 +1,17 @@
-from flask import Blueprint, request, jsonify
-from models import Coupon, Cart
+from flask import Blueprint, request
+from flask_jwt_extended import jwt_required
+from utils import success_response, error_response
 
 coupon_bp = Blueprint('coupon', __name__)
 
 @coupon_bp.route('/coupons', methods=['POST'])
+@jwt_required()
 def create_coupon():
-    data = request.get_json()
-    code = data.get('code')
-    discount = data.get('discount')
-    expiration_date = data.get('expiration_date')
+    # Stub
+    return success_response(message='Coupon created successfully')
 
-    coupon = Coupon(code=code, discount=discount, expiration_date=expiration_date)
-    coupon.save()
-
-    return jsonify({'message': 'Coupon created successfully'}), 201
-
-@coupon_bp.route('/coupons/apply', methods=['POST'])
-def apply_coupon():
-    data = request.get_json()
-    user_id = data.get('user_id')
-    code = data.get('code')
-
-    coupon = Coupon.find_by_code(code)
-    if not coupon:
-        return jsonify({'message': 'Invalid coupon code'}), 404
-
-    cart = Cart.find_by_user_id(user_id)
-    if not cart:
-        return jsonify({'message': 'Cart not found'}), 404
-
-    discount_amount = cart.apply_coupon(coupon)
-    cart.save()
-
-    return jsonify({'message': 'Coupon applied successfully', 'discount_amount': discount_amount}), 200
+@coupon_bp.route('/coupons/<code>', methods=['GET'])
+@jwt_required()
+def get_coupon(code):
+    # Stub
+    return error_response('Coupon not found', 404)

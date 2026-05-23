@@ -1,11 +1,15 @@
-from flask import request, jsonify
+from flask import request
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+from flask_jwt_extended.exceptions import JWTExtendedException
+from jwt.exceptions import PyJWTError
 from models import User
+from utils import error_response
 
 def role_based_access_control():
     # Public endpoints that don't require authentication
     public_endpoints = [
         'welcome',  # Root endpoint
+        'health',
         'auth.register',  # Registration
         'auth.login',    # Login
     ]
@@ -17,22 +21,24 @@ def role_based_access_control():
         
     try:
         verify_jwt_in_request()
-    except:
-        return jsonify({'message': 'Missing or invalid authorization token'}), 401
+    except (JWTExtendedException, PyJWTError) as e:
+        return error_response(message='Missing or invalid authorization token', status_code=401, details=str(e))
+    except Exception as e:
+        return error_response(message='Authentication error', status_code=401, details=str(e))
 
     endpoint = request.endpoint
     current_user_id = get_jwt_identity()
     user = User.find_by_id(current_user_id)
 
     if not user:
-        return jsonify({'message': 'User not found'}), 404
+        return error_response(message='User not found', status_code=404)
 
-    if endpoint.startswith('auth.') or endpoint.startswith('product.') or endpoint.startswith('cart.') or endpoint.startswith('order.') or endpoint.startswith('coupon.') or endpoint.startswith('webhook.'):
+    if endpoint:
         if user['role'] == 'buyer' and endpoint.startswith('product.') and request.method in ['POST', 'PUT', 'DELETE']:
-            return jsonify({'message': 'Access denied'}), 403
+            return error_response(message='Access denied', status_code=403)
         if user['role'] == 'seller' and endpoint.startswith('cart.'):
-            return jsonify({'message': 'Access denied'}), 403
+            return error_response(message='Access denied', status_code=403)
         if user['role'] == 'seller' and endpoint.startswith('order.'):
-            return jsonify({'message': 'Access denied'}), 403
+            return error_response(message='Access denied', status_code=403)
 
     return None
