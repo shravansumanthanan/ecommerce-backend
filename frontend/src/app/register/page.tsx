@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
 
 export default function Register() {
   const [username, setUsername] = useState('');
@@ -16,7 +17,7 @@ export default function Register() {
       await api.post('/auth/register', { username, email, password });
       router.push('/login');
     } catch (err: any) {
-      alert(err.message || 'Registration failed');
+      toast.error(err.message || 'Registration failed');
     }
   };
 

@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { Trash2, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 export default function Cart() {
   const [cart, setCart] = useState<any>(null);
@@ -39,7 +40,7 @@ export default function Cart() {
       const res = await api.post('/checkout', {});
       router.push(`/checkout/success?order_id=${res.data.order_id}`);
     } catch (err: any) {
-      alert(err.message || 'Checkout failed');
+      toast.error(err.message || 'Checkout failed');
     }
   };
 

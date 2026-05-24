@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -17,7 +18,7 @@ export default function Login() {
       localStorage.setItem('user', JSON.stringify(res.data.user));
       window.location.href = '/';
     } catch (err: any) {
-      alert(err.message || 'Login failed');
+      toast.error(err.message || 'Login failed');
     }
   };
 

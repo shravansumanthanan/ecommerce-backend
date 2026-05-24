@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { ShoppingCart, ArrowLeft, Cpu } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 export default function ProductDetails() {
   const params = useParams();
@@ -30,10 +31,10 @@ export default function ProductDetails() {
     setAdding(true);
     try {
       await api.post('/cart', { product_id: product._id, quantity: 1 });
-      router.push('/cart');
+      toast.success('Module added to manifest');
     } catch (err) {
       console.error(err);
-      alert('Failed to add to cart. Please log in first.');
+      toast.error('Access Denied: Establish clearance first.');
     } finally {
       setAdding(false);
     }
@@ -92,7 +93,7 @@ export default function ProductDetails() {
             
             <div className="border-t border-[#ffffff]/10 py-8 mb-8">
                <h3 className="text-sm font-bold uppercase tracking-widest text-white mb-4">Module Specifications</h3>
-               <p className="text-[#808080] leading-relaxed tracking-wide text-sm uppercase">
+               <p className="text-[#808080] leading-relaxed text-sm">
                  {product.description}
                </p>
             </div>
