@@ -9,46 +9,46 @@ db = client['ecommerce']
 
 products = [
     {
-        "name": "Wireless Earbuds, IPX8",
-        "description": "Organic Cotton, fairtrade certified",
-        "price": 89.00,
-        "category": "Headphone",
-        "image_url": "/api/placeholder/earbuds.png"
+        "name": "Bose QuietComfort Earbuds",
+        "description": "True wireless noise cancelling bluetooth earbuds with world-class audio.",
+        "price": 279.00,
+        "category": "Earbuds",
+        "image_url": "/images/bose.png"
     },
     {
         "name": "AirPods Max",
-        "description": "A perfect balance of high-fidelity audio",
-        "price": 559.00,
-        "category": "Headphone",
+        "description": "A perfect balance of high-fidelity audio and magical AirPods experience.",
+        "price": 549.00,
+        "category": "Headphones",
         "image_url": "/images/airpods.png"
     },
     {
-        "name": "Bose BT Earphones",
-        "description": "Table with air purifier, stained venner/black",
-        "price": 289.00,
-        "category": "Headphone",
-        "image_url": "/api/placeholder/bose.png"
+        "name": "HTC VIVE Pro VR",
+        "description": "Professional-grade VR headset for immersive and high-fidelity virtual reality.",
+        "price": 799.00,
+        "category": "VR Headset",
+        "image_url": "/images/vive.png"
     },
     {
-        "name": "VIVEFOX Headphones",
-        "description": "Wired Stereo Headsets With Mic",
-        "price": 39.00,
-        "category": "Headphone",
-        "image_url": "/api/placeholder/vivefox.png"
+        "name": "JBL Live 460NC",
+        "description": "Wireless on-ear noise cancelling headphones with deep bass.",
+        "price": 129.95,
+        "category": "Headphones",
+        "image_url": "/images/jbl.png"
     },
     {
-        "name": "JBL TUNE 600BTNC",
-        "description": "Premium Bone Conduction Open Ear Bluetooth",
-        "price": 59.00,
-        "category": "Headphone",
-        "image_url": "/api/placeholder/jbl.png"
+        "name": "Marshall Major IV",
+        "description": "Iconic wireless headphones with 80+ hours of wireless playtime.",
+        "price": 149.99,
+        "category": "Headphones",
+        "image_url": "/images/marshall.png"
     },
     {
-        "name": "TAGRY Bluetooth",
-        "description": "256, 8 core GPU, 8 GB",
-        "price": 109.00,
-        "category": "Headphone",
-        "image_url": "/api/placeholder/tagry.png"
+        "name": "Beats Studio Pro",
+        "description": "Premium wireless noise cancelling headphones with custom acoustic platform.",
+        "price": 349.99,
+        "category": "Headphones",
+        "image_url": "/images/beats.png"
     }
 ]
 
