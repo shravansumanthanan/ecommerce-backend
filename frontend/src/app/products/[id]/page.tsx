@@ -12,6 +12,7 @@ export default function ProductDetails() {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -30,11 +31,23 @@ export default function ProductDetails() {
   const addToCart = async () => {
     setAdding(true);
     try {
-      await api.post('/cart', { product_id: product._id, quantity: 1 });
-      toast.success('Module added to manifest');
+      if (!localStorage.getItem('token')) {
+        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        const existing = guestCart.find((i: any) => i.product_id === product._id);
+        if (existing) {
+          existing.quantity += quantity;
+        } else {
+          guestCart.push({ product_id: product._id, quantity, product });
+        }
+        localStorage.setItem('guest_cart', JSON.stringify(guestCart));
+        toast.success('Module added to offline manifest');
+      } else {
+        await api.post('/cart', { product_id: product._id, quantity });
+        toast.success('Module added to manifest');
+      }
     } catch (err) {
       console.error(err);
-      toast.error('Access Denied: Establish clearance first.');
+      toast.error('System Error: Could not process request.');
     } finally {
       setAdding(false);
     }
@@ -98,11 +111,23 @@ export default function ProductDetails() {
                </p>
             </div>
             
-            <button
-              onClick={addToCart}
-              disabled={product.stock === 0 || adding}
-              className="w-full bg-[#F95724] hover:bg-[#d84618] text-white font-bold uppercase tracking-widest py-6 px-8 transition-all flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_30px_rgba(249,87,36,0.4)]"
-            >
+            <div className="flex space-x-4">
+              <div className="flex items-center border border-[#ffffff]/20">
+                <button 
+                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  className="w-12 h-full flex items-center justify-center text-white hover:text-[#F95724] hover:bg-[#1a1a1a] transition-colors font-bold text-xl"
+                >-</button>
+                <span className="w-12 text-center text-white font-bold">{quantity}</span>
+                <button 
+                  onClick={() => setQuantity(q => q + 1)}
+                  className="w-12 h-full flex items-center justify-center text-white hover:text-[#F95724] hover:bg-[#1a1a1a] transition-colors font-bold text-xl"
+                >+</button>
+              </div>
+              <button
+                onClick={addToCart}
+                disabled={product.stock === 0 || adding}
+                className="flex-grow bg-[#F95724] hover:bg-[#d84618] text-white font-bold uppercase tracking-widest py-6 px-8 transition-all flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_30px_rgba(249,87,36,0.4)]"
+              >
               {adding ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : product.stock > 0 ? (
@@ -110,7 +135,8 @@ export default function ProductDetails() {
               ) : (
                 'Inventory Depleted'
               )}
-            </button>
+              </button>
+            </div>
           </div>
         </div>
       </div>

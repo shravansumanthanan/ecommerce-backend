@@ -13,6 +13,12 @@ export default function Cart() {
 
   const fetchCart = async () => {
     try {
+      if (!localStorage.getItem('token')) {
+        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        setCart({ items: guestCart });
+        setLoading(false);
+        return;
+      }
       const res = await api.get('/cart');
       setCart(res.data);
     } catch (err) {
@@ -28,6 +34,13 @@ export default function Cart() {
 
   const removeItem = async (productId: string) => {
     try {
+      if (!localStorage.getItem('token')) {
+        let guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        guestCart = guestCart.filter((i: any) => i.product_id !== productId);
+        localStorage.setItem('guest_cart', JSON.stringify(guestCart));
+        fetchCart();
+        return;
+      }
       await api.delete(`/cart/${productId}`);
       fetchCart();
     } catch (err) {
@@ -35,7 +48,35 @@ export default function Cart() {
     }
   };
 
+  const updateQuantity = async (productId: string, currentQty: number, delta: number) => {
+    const newQty = currentQty + delta;
+    if (newQty < 1) {
+      removeItem(productId);
+      return;
+    }
+    try {
+      if (!localStorage.getItem('token')) {
+        let guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        const existing = guestCart.find((i: any) => i.product_id === productId);
+        if (existing) existing.quantity = newQty;
+        localStorage.setItem('guest_cart', JSON.stringify(guestCart));
+        fetchCart();
+        return;
+      }
+      await api.put(`/cart/${productId}`, { quantity: newQty });
+      fetchCart();
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update module quantity');
+    }
+  };
+
   const handleCheckout = async () => {
+    if (!localStorage.getItem('token')) {
+      toast.error('Clearance Required to Execute Checkout');
+      router.push('/login');
+      return;
+    }
     try {
       const res = await api.post('/checkout', {});
       router.push(`/checkout/success?order_id=${res.data.order_id}`);
@@ -83,7 +124,17 @@ export default function Cart() {
                   </div>
                   <div className="sm:ml-8 flex-grow w-full text-center sm:text-left">
                     <h3 className="text-xl font-black text-white uppercase tracking-wider mb-2">{item.product?.name || 'Unknown Module'}</h3>
-                    <p className="text-[#808080] text-xs uppercase tracking-widest font-bold">Qty: {item.quantity}</p>
+                    <div className="flex items-center justify-center sm:justify-start space-x-4 mt-4">
+                      <button 
+                        onClick={() => updateQuantity(item.product_id, item.quantity, -1)}
+                        className="w-6 h-6 flex items-center justify-center border border-[#ffffff]/20 text-white hover:border-[#F95724] hover:text-[#F95724] transition-colors"
+                      >-</button>
+                      <span className="text-white text-xs uppercase tracking-widest font-bold w-4 text-center">{item.quantity}</span>
+                      <button 
+                        onClick={() => updateQuantity(item.product_id, item.quantity, 1)}
+                        className="w-6 h-6 flex items-center justify-center border border-[#ffffff]/20 text-white hover:border-[#F95724] hover:text-[#F95724] transition-colors"
+                      >+</button>
+                    </div>
                   </div>
                   <div className="mt-4 sm:mt-0 flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto">
                     <p className="text-xl font-black text-white tracking-tighter sm:mb-4">${((item.product?.price || 0) * item.quantity).toFixed(2)}</p>

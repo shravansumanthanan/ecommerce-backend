@@ -16,6 +16,20 @@ export default function Login() {
       const res = await api.post('/auth/login', { email, password });
       localStorage.setItem('token', res.data.access_token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
+      
+      // Sync guest cart
+      const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+      if (guestCart.length > 0) {
+        for (const item of guestCart) {
+          try {
+            await api.post('/cart', { product_id: item.product_id, quantity: item.quantity }, {
+              headers: { Authorization: `Bearer ${res.data.access_token}` }
+            });
+          } catch(e) { console.error('Failed to sync guest item', e); }
+        }
+        localStorage.removeItem('guest_cart');
+      }
+      
       window.location.href = '/';
     } catch (err: any) {
       toast.error(err.message || 'Login failed');
