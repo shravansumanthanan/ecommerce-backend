@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import Order, Cart
 from extensions import db_manager
-from schemas import OrderStatusSchema
+from schemas import OrderStatusSchema, CheckoutPayloadSchema
 from utils import success_response, error_response
 from marshmallow import ValidationError
 from bson import ObjectId
@@ -12,6 +12,12 @@ order_bp = Blueprint('order', __name__)
 @order_bp.route('/checkout', methods=['POST'])
 @jwt_required()
 def checkout():
+    schema = CheckoutPayloadSchema()
+    try:
+        data = schema.load(request.get_json() or {})
+    except ValidationError as err:
+        return error_response('Validation failed', 400, err.messages)
+
     user_id = get_jwt_identity()
     cart = Cart.find_by_user_id(user_id)
 
@@ -47,7 +53,13 @@ def checkout():
         )
 
     # 3. Create Order
-    order_id = Order.create(user_id, items, total_price)
+    order_id = Order.create(
+        user_id=user_id, 
+        items=items, 
+        total_price=total_price,
+        shipping_address=data['shipping_address'],
+        payment_info=data['payment_info']
+    )
     
     # 4. Clear Cart
     Cart.delete(user_id)

@@ -172,11 +172,13 @@ class Cart:
 
 class Order:
     @staticmethod
-    def create(user_id, items, total_price):
+    def create(user_id, items, total_price, shipping_address=None, payment_info=None):
         order_data = {
             'user_id': user_id,
             'items': items,
             'total_price': total_price,
+            'shipping_address': shipping_address,
+            'payment_info': payment_info,
             'status': 'Pending',
             'created_at': datetime.now(timezone.utc)
         }

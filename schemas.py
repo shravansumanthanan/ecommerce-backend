@@ -23,3 +23,7 @@ class CartItemSchema(Schema):
 
 class OrderStatusSchema(Schema):
     status = fields.String(required=True, validate=validate.OneOf(['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled']))
+
+class CheckoutPayloadSchema(Schema):
+    shipping_address = fields.Dict(required=True)
+    payment_info = fields.Dict(required=True)

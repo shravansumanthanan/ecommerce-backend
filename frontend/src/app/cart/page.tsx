@@ -71,18 +71,13 @@ export default function Cart() {
     }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (!localStorage.getItem('token')) {
       toast.error('Clearance Required to Execute Checkout');
       router.push('/login');
       return;
     }
-    try {
-      const res = await api.post('/checkout', {});
-      router.push(`/checkout/success?order_id=${res.data.order_id}`);
-    } catch (err: any) {
-      toast.error(err.message || 'Checkout failed');
-    }
+    router.push('/checkout/shipping');
   };
 
   if (loading) return <div className="flex justify-center py-20 bg-[#0d0d0d] min-h-screen"><div className="animate-spin rounded-none h-12 w-12 border-4 border-[#1a1a1a] border-t-[#F95724]"></div></div>;
