@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { ShoppingCart, User, LogOut, Package } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Disc3 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -24,39 +24,39 @@ export default function Navbar() {
   if (!isClient) return null;
 
   return (
-    <nav className="fixed top-0 w-full z-50 glass border-b border-white/10">
+    <nav className="fixed top-0 w-full z-50 bg-[#f2f2f2] text-[#0d0d0d] border-b border-[#0d0d0d]/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <Package className="h-8 w-8 text-blue-500" />
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                NexusMarket
+              <Disc3 className="h-6 w-6 text-[#F95724]" />
+              <span className="text-xl font-black tracking-tighter uppercase">
+                Nexus<span className="text-[#F95724]">Market</span>
               </span>
             </Link>
           </div>
-          <div className="flex items-center space-x-6">
-            <Link href="/products" className="text-sm font-medium text-slate-300 hover:text-white transition">
+          <div className="flex items-center space-x-8">
+            <Link href="/products" className="text-xs font-bold uppercase tracking-widest text-[#0d0d0d]/70 hover:text-[#F95724] transition-colors">
               Explore
             </Link>
             {isLoggedIn ? (
               <>
-                <Link href="/cart" className="relative text-slate-300 hover:text-white transition">
+                <Link href="/cart" className="relative text-[#0d0d0d]/70 hover:text-[#F95724] transition-colors">
                   <ShoppingCart className="h-5 w-5" />
                 </Link>
-                <Link href="/dashboard" className="text-slate-300 hover:text-white transition">
+                <Link href="/dashboard" className="text-[#0d0d0d]/70 hover:text-[#F95724] transition-colors">
                   <User className="h-5 w-5" />
                 </Link>
-                <button onClick={handleLogout} className="text-slate-300 hover:text-white transition">
+                <button onClick={handleLogout} className="text-[#0d0d0d]/70 hover:text-[#F95724] transition-colors">
                   <LogOut className="h-5 w-5" />
                 </button>
               </>
             ) : (
-              <div className="flex items-center space-x-4">
-                <Link href="/login" className="text-sm font-medium text-slate-300 hover:text-white transition">
+              <div className="flex items-center space-x-6">
+                <Link href="/login" className="text-xs font-bold uppercase tracking-widest text-[#0d0d0d]/70 hover:text-[#F95724] transition-colors">
                   Log In
                 </Link>
-                <Link href="/register" className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                <Link href="/register" className="px-5 py-2 bg-[#0d0d0d] text-white text-xs font-bold uppercase tracking-widest hover:bg-[#F95724] transition-colors">
                   Sign Up
                 </Link>
               </div>
