@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 
 function Hero() {
   return (
@@ -22,15 +23,23 @@ function Hero() {
               <span>Available Now</span>
             </div>
             
-            <h1 className="text-7xl md:text-9xl font-black tracking-tighter leading-none text-[#0d0d0d]">
-              NXS-01
+            <h1 className="text-7xl md:text-9xl font-black tracking-tighter leading-none text-[#0d0d0d] min-h-[1em] pb-2">
+              <TypewriterEffect 
+                words={[{ text: "NXS-01" }, { text: "NEXUSMARKET" }, { text: "BUILDING COOL THINGS" }]} 
+                className="text-[#0d0d0d]" 
+                cursorClassName="bg-[#0d0d0d]" 
+              />
             </h1>
-            <p className="text-xl md:text-2xl font-bold tracking-tight text-[#0d0d0d]/80 mt-[-10px]">
-              The Ultimate E-Commerce Engine
+            <p className="text-xl md:text-2xl font-bold tracking-tight text-[#F95724] mt-[-10px] uppercase">
+              Coming Soon
             </p>
             
-            <p className="text-base leading-relaxed text-[#0d0d0d]/70 max-w-md mt-8 border-l-2 border-[#0d0d0d]/20 pl-4 font-medium">
-              A powerful experience engine designed to transform your digital storefront into pure instinct. Seamless integration. Uncompromising speed.
+            <p className="text-base leading-relaxed text-[#0d0d0d]/70 max-w-md mt-8 border-l-2 border-[#0d0d0d]/20 pl-4 font-medium uppercase font-mono text-sm tracking-tight">
+              &gt; _SYSTEM INIT
+              <br/>
+              &gt; MODULES COMPILING
+              <br/>
+              &gt; PREPARING NEXT-GEN ECOMMERCE ENGINE...
             </p>
             
             <div className="pt-8 flex items-center space-x-6">
