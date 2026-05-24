@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function Register() {
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
@@ -13,10 +13,8 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post('/auth/register', { name, email, password });
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      window.location.href = '/';
+      await api.post('/auth/register', { username, email, password });
+      router.push('/login');
     } catch (err: any) {
       alert(err.message || 'Registration failed');
     }
@@ -38,8 +36,8 @@ export default function Register() {
               <label className="block text-xs font-bold text-[#808080] uppercase tracking-widest mb-2">Designation Name</label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-[#0d0d0d] border border-[#ffffff]/10 p-4 text-white focus:outline-none focus:border-[#F95724] transition-colors"
                 required
               />

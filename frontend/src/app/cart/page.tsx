@@ -36,7 +36,7 @@ export default function Cart() {
 
   const handleCheckout = async () => {
     try {
-      const res = await api.post('/order/checkout', {});
+      const res = await api.post('/checkout', {});
       router.push(`/checkout/success?order_id=${res.data.order_id}`);
     } catch (err: any) {
       alert(err.message || 'Checkout failed');
