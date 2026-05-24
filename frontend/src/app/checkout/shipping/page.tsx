@@ -30,66 +30,66 @@ export default function ShippingStep() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <h2 className="text-xl font-black uppercase tracking-wider mb-6">Shipping Data</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Delivery Information</h2>
       
       <div>
-        <label className="block text-[10px] font-bold text-[#808080] uppercase tracking-widest mb-2">Recipient Name</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Recipient Name</label>
         <input 
           type="text" 
           value={address.fullName}
           onChange={e => setAddress({...address, fullName: e.target.value})}
-          className="w-full bg-[#0d0d0d] border border-[#ffffff]/10 p-4 text-sm focus:outline-none focus:border-[#F95724] transition-colors"
+          className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#004d40]/20 focus:border-[#004d40] transition-colors"
           placeholder="Jane Doe"
         />
       </div>
 
       <div>
-        <label className="block text-[10px] font-bold text-[#808080] uppercase tracking-widest mb-2">Street Address</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
         <input 
           type="text" 
           value={address.street}
           onChange={e => setAddress({...address, street: e.target.value})}
-          className="w-full bg-[#0d0d0d] border border-[#ffffff]/10 p-4 text-sm focus:outline-none focus:border-[#F95724] transition-colors"
-          placeholder="123 Sector 4"
+          className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#004d40]/20 focus:border-[#004d40] transition-colors"
+          placeholder="123 Shopping Blvd"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-[10px] font-bold text-[#808080] uppercase tracking-widest mb-2">City/Zone</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
           <input 
             type="text" 
             value={address.city}
             onChange={e => setAddress({...address, city: e.target.value})}
-            className="w-full bg-[#0d0d0d] border border-[#ffffff]/10 p-4 text-sm focus:outline-none focus:border-[#F95724] transition-colors"
-            placeholder="Neo-Tokyo"
+            className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#004d40]/20 focus:border-[#004d40] transition-colors"
+            placeholder="New York"
           />
         </div>
         <div>
-          <label className="block text-[10px] font-bold text-[#808080] uppercase tracking-widest mb-2">Postal Code</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
           <input 
             type="text" 
             value={address.postalCode}
             onChange={e => setAddress({...address, postalCode: e.target.value})}
-            className="w-full bg-[#0d0d0d] border border-[#ffffff]/10 p-4 text-sm focus:outline-none focus:border-[#F95724] transition-colors"
-            placeholder="90210"
+            className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#004d40]/20 focus:border-[#004d40] transition-colors"
+            placeholder="10001"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-[10px] font-bold text-[#808080] uppercase tracking-widest mb-2">Country/Region</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Country/Region</label>
         <input 
           type="text" 
           value={address.country}
           onChange={e => setAddress({...address, country: e.target.value})}
-          className="w-full bg-[#0d0d0d] border border-[#ffffff]/10 p-4 text-sm focus:outline-none focus:border-[#F95724] transition-colors"
+          className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#004d40]/20 focus:border-[#004d40] transition-colors"
           placeholder="United States"
         />
       </div>
 
       <div className="pt-6">
-        <button type="submit" className="w-full bg-[#F95724] hover:bg-[#d84618] text-white font-bold uppercase tracking-widest py-4 transition-colors">
+        <button type="submit" className="w-full bg-[#004d40] hover:bg-[#00332a] text-white font-bold py-4 rounded-full transition-colors">
           Proceed to Payment
         </button>
       </div>

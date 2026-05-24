@@ -15,7 +15,7 @@ export default function Dashboard() {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     if (!token || !userData) {
-      toast.error('Clearance Required');
+      toast.error('Please log in');
       router.push('/login');
       return;
     }
@@ -27,7 +27,7 @@ export default function Dashboard() {
         setOrders(res.data || []);
       } catch (err) {
         console.error(err);
-        toast.error('Failed to load transaction history.');
+        toast.error('Failed to load order history.');
       } finally {
         setLoading(false);
       }
@@ -35,28 +35,28 @@ export default function Dashboard() {
     fetchOrders();
   }, [router]);
 
-  if (loading) return <div className="flex justify-center py-32 bg-[#0d0d0d] min-h-screen"><div className="animate-spin rounded-none h-12 w-12 border-4 border-[#1a1a1a] border-t-[#F95724]"></div></div>;
+  if (loading) return <div className="flex justify-center py-32 bg-[#f8f9fa] min-h-screen"><div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#004d40]"></div></div>;
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'Pending': return <Clock className="w-4 h-4 mr-2" />;
-      case 'Processing': return <Package className="w-4 h-4 mr-2" />;
-      case 'Shipped': return <Truck className="w-4 h-4 mr-2" />;
-      case 'Delivered': return <CheckCircle className="w-4 h-4 mr-2" />;
-      default: return <Clock className="w-4 h-4 mr-2" />;
+      case 'Pending': return <Clock className="w-5 h-5 mr-2 text-yellow-500" />;
+      case 'Processing': return <Package className="w-5 h-5 mr-2 text-blue-500" />;
+      case 'Shipped': return <Truck className="w-5 h-5 mr-2 text-purple-500" />;
+      case 'Delivered': return <CheckCircle className="w-5 h-5 mr-2 text-green-500" />;
+      default: return <Clock className="w-5 h-5 mr-2 text-gray-500" />;
     }
   };
 
   return (
-    <div className="w-full bg-[#0d0d0d] min-h-screen pt-24 pb-12 text-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="w-full bg-[#f8f9fa] min-h-screen pt-24 pb-20">
+      <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="mb-12 border-b border-[#ffffff]/10 pb-8 flex justify-between items-end">
+        <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-5xl font-black tracking-tighter uppercase mb-2">Nexus Terminal</h1>
-            <p className="text-[#808080] text-xs font-bold uppercase tracking-widest">
-              Operator: {user?.username} // SYS_ACCESS: GRANTED
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Account</h1>
+            <p className="text-gray-500 text-sm">
+              Welcome back, <span className="font-semibold text-gray-900">{user?.username}</span>
             </p>
           </div>
           <button 
@@ -64,47 +64,48 @@ export default function Dashboard() {
               localStorage.clear();
               window.location.href = '/login';
             }}
-            className="text-[10px] font-bold text-white border border-[#ffffff]/20 px-4 py-2 hover:bg-[#F95724] hover:border-[#F95724] transition-colors uppercase tracking-widest"
+            className="text-sm font-medium text-red-600 bg-red-50 px-6 py-2 rounded-full hover:bg-red-100 transition-colors"
           >
             Log Out
           </button>
         </div>
 
         {/* Content */}
-        <div>
-          <h2 className="text-xl font-black uppercase tracking-wider mb-6 flex items-center">
-            <span className="w-2 h-2 bg-[#F95724] mr-3 animate-pulse"></span>
-            Transaction Log
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">
+            Order History
           </h2>
 
           {orders.length === 0 ? (
-            <div className="border border-[#ffffff]/10 bg-[#1a1a1a] p-16 text-center">
-              <p className="text-sm text-[#808080] mb-2 uppercase font-bold tracking-widest">No Transactions Found</p>
-              <p className="text-xs text-[#808080]">Your operational history is clear.</p>
+            <div className="py-12 text-center">
+              <p className="text-gray-500 mb-4">You haven't placed any orders yet.</p>
+              <button 
+                onClick={() => router.push('/')}
+                className="text-[#004d40] font-medium hover:underline"
+              >
+                Start Shopping
+              </button>
             </div>
           ) : (
             <div className="space-y-6">
               {orders.map((order: any) => (
-                <div key={order._id} className="border border-[#ffffff]/10 bg-[#1a1a1a] p-6 hover:border-[#F95724]/50 transition-colors">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-[#ffffff]/10 pb-4 mb-4 gap-4">
+                <div key={order._id} className="border border-gray-100 rounded-lg p-6 hover:border-[#004d40]/30 transition-colors">
+                  
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-4 mb-4 gap-4">
                     <div>
-                      <p className="text-[10px] text-[#808080] uppercase tracking-widest font-bold mb-1">Transaction ID</p>
-                      <p className="font-mono text-sm">{order._id}</p>
+                      <p className="text-xs text-gray-500 font-medium mb-1 uppercase tracking-wider">Order Number</p>
+                      <p className="font-mono text-sm text-gray-900">{order._id}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-[#808080] uppercase tracking-widest font-bold mb-1">Date Logged</p>
-                      <p className="font-mono text-sm">{new Date(order.created_at).toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-500 font-medium mb-1 uppercase tracking-wider">Date Placed</p>
+                      <p className="text-sm text-gray-900">{new Date(order.created_at).toLocaleDateString()}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-[#808080] uppercase tracking-widest font-bold mb-1">Total Value</p>
-                      <p className="font-black text-[#F95724]">${order.total_price.toFixed(2)}</p>
+                      <p className="text-xs text-gray-500 font-medium mb-1 uppercase tracking-wider">Total Amount</p>
+                      <p className="font-bold text-gray-900">${order.total_price.toFixed(2)}</p>
                     </div>
                     <div>
-                      <div className={`inline-flex items-center px-3 py-1 text-[10px] uppercase font-bold tracking-widest border
-                        ${order.status === 'Pending' ? 'text-[#eab308] border-[#eab308]/30' : 
-                          order.status === 'Delivered' ? 'text-green-500 border-green-500/30' : 
-                          'text-white border-[#ffffff]/20'}`}
-                      >
+                      <div className="flex items-center text-sm font-medium text-gray-900 bg-gray-50 px-4 py-2 rounded-full border border-gray-200">
                         {getStatusIcon(order.status)}
                         {order.status}
                       </div>
@@ -113,21 +114,24 @@ export default function Dashboard() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                      <h3 className="text-[10px] font-bold text-[#808080] uppercase tracking-widest mb-3 border-b border-[#ffffff]/10 pb-2">Modules Acquired</h3>
-                      <div className="space-y-2">
+                      <h3 className="text-sm font-bold text-gray-900 mb-3">Items</h3>
+                      <div className="space-y-3">
                         {order.items.map((item: any, idx: number) => (
-                          <div key={idx} className="flex justify-between text-sm font-medium">
-                            <span><span className="text-[#808080] mr-2">x{item.quantity}</span> Product ID: <span className="font-mono">{item.product_id}</span></span>
-                            <span>${(item.price * item.quantity).toFixed(2)}</span>
+                          <div key={idx} className="flex justify-between text-sm">
+                            <span className="text-gray-600">
+                              <span className="font-medium mr-2 text-gray-900">{item.quantity}x</span> 
+                              Product <span className="font-mono text-xs">{item.product_id}</span>
+                            </span>
+                            <span className="font-medium text-gray-900">${(item.price * item.quantity).toFixed(2)}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                     {order.shipping_address && (
                        <div>
-                         <h3 className="text-[10px] font-bold text-[#808080] uppercase tracking-widest mb-3 border-b border-[#ffffff]/10 pb-2">Drop Location</h3>
-                         <div className="text-sm space-y-1">
-                           <p>{order.shipping_address.fullName}</p>
+                         <h3 className="text-sm font-bold text-gray-900 mb-3">Shipping Address</h3>
+                         <div className="text-sm text-gray-600 space-y-1">
+                           <p className="font-medium text-gray-900">{order.shipping_address.fullName}</p>
                            <p>{order.shipping_address.street}</p>
                            <p>{order.shipping_address.city}, {order.shipping_address.postalCode}</p>
                          </div>

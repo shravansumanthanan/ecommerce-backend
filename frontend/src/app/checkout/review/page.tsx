@@ -35,11 +35,10 @@ export default function ReviewStep() {
         payment_info: payment
       };
       const res = await api.post('/checkout', payload);
-      // Clean up local storage
       localStorage.removeItem('checkout_shipping');
       localStorage.removeItem('checkout_payment');
       
-      toast.success('Order executed successfully.');
+      toast.success('Order placed successfully.');
       router.push(`/checkout/success?order_id=${res.data.order_id}`);
     } catch (err: any) {
       toast.error(err.message || 'Execution failed.');
@@ -47,41 +46,41 @@ export default function ReviewStep() {
     }
   };
 
-  if (!cart) return <div className="animate-pulse h-32 bg-[#0d0d0d]"></div>;
+  if (!cart) return <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-[#004d40]"></div></div>;
 
   const total = cart.items.reduce((sum: number, item: any) => sum + (item.product.price * item.quantity), 0);
 
   return (
     <div className="space-y-8">
-      <h2 className="text-xl font-black uppercase tracking-wider mb-6">Order Review</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Review Order</h2>
       
       {/* Items */}
-      <div className="border border-[#ffffff]/10 p-6 bg-[#0d0d0d]">
-        <h3 className="text-[10px] font-bold text-[#808080] uppercase tracking-widest mb-4 border-b border-[#ffffff]/10 pb-2">Manifest Items</h3>
+      <div className="border border-gray-200 rounded-xl p-6 bg-gray-50">
+        <h3 className="text-sm font-bold text-gray-900 uppercase mb-4 border-b border-gray-200 pb-2">Items Summary</h3>
         {cart.items.map((item: any) => (
           <div key={item.product_id} className="flex justify-between items-center mb-4 last:mb-0">
-            <div className="text-sm">
-              <span className="font-bold">{item.product.name}</span>
-              <span className="text-[#808080] ml-2">x{item.quantity}</span>
+            <div className="text-sm text-gray-900">
+              <span className="font-medium">{item.product.name}</span>
+              <span className="text-gray-500 ml-2">x{item.quantity}</span>
             </div>
-            <div className="font-bold text-[#F95724]">${(item.product.price * item.quantity).toFixed(2)}</div>
+            <div className="font-bold text-gray-900">${(item.product.price * item.quantity).toFixed(2)}</div>
           </div>
         ))}
-        <div className="mt-4 pt-4 border-t border-[#ffffff]/10 flex justify-between items-center">
-          <span className="text-sm font-bold uppercase tracking-widest">Total Value</span>
-          <span className="text-2xl font-black text-white">${total.toFixed(2)}</span>
+        <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+          <span className="font-bold text-gray-900">Total</span>
+          <span className="text-2xl font-bold text-gray-900">${total.toFixed(2)}</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Shipping Summary */}
-        <div className="border border-[#ffffff]/10 p-6 bg-[#0d0d0d]">
-          <h3 className="text-[10px] font-bold text-[#808080] uppercase tracking-widest mb-4 border-b border-[#ffffff]/10 pb-2 flex justify-between">
+        <div className="border border-gray-200 rounded-xl p-6">
+          <h3 className="text-sm font-bold text-gray-900 uppercase mb-4 border-b border-gray-200 pb-2 flex justify-between">
             Shipping
-            <button onClick={() => router.push('/checkout/shipping')} className="text-[#F95724] hover:underline">Edit</button>
+            <button onClick={() => router.push('/checkout/shipping')} className="text-[#004d40] hover:underline text-xs capitalize">Edit</button>
           </h3>
-          <div className="text-sm text-white space-y-1">
-            <p>{shipping?.fullName}</p>
+          <div className="text-sm text-gray-600 space-y-1">
+            <p className="font-medium text-gray-900">{shipping?.fullName}</p>
             <p>{shipping?.street}</p>
             <p>{shipping?.city}, {shipping?.postalCode}</p>
             <p>{shipping?.country}</p>
@@ -89,14 +88,14 @@ export default function ReviewStep() {
         </div>
 
         {/* Payment Summary */}
-        <div className="border border-[#ffffff]/10 p-6 bg-[#0d0d0d]">
-          <h3 className="text-[10px] font-bold text-[#808080] uppercase tracking-widest mb-4 border-b border-[#ffffff]/10 pb-2 flex justify-between">
+        <div className="border border-gray-200 rounded-xl p-6">
+          <h3 className="text-sm font-bold text-gray-900 uppercase mb-4 border-b border-gray-200 pb-2 flex justify-between">
             Payment
-            <button onClick={() => router.push('/checkout/payment')} className="text-[#F95724] hover:underline">Edit</button>
+            <button onClick={() => router.push('/checkout/payment')} className="text-[#004d40] hover:underline text-xs capitalize">Edit</button>
           </h3>
-          <div className="text-sm text-white space-y-1">
-            <p>{payment?.method}</p>
-            <p className="tracking-widest">**** **** **** {payment?.cardNumber?.slice(-4)}</p>
+          <div className="text-sm text-gray-600 space-y-1">
+            <p className="font-medium text-gray-900">{payment?.method}</p>
+            <p>**** **** **** {payment?.cardNumber?.slice(-4)}</p>
             <p>Exp: {payment?.expiry}</p>
           </div>
         </div>
@@ -106,9 +105,9 @@ export default function ReviewStep() {
         <button 
           onClick={executeOrder} 
           disabled={processing}
-          className="w-full bg-[#F95724] hover:bg-[#d84618] text-white font-bold uppercase tracking-widest py-6 text-lg transition-colors disabled:opacity-50 flex items-center justify-center"
+          className="w-full bg-[#004d40] hover:bg-[#00332a] text-white font-bold py-4 rounded-full text-lg transition-colors disabled:opacity-50 flex items-center justify-center"
         >
-          {processing ? 'Processing Transaction...' : 'Execute Transaction'}
+          {processing ? 'Processing...' : 'Place Order'}
         </button>
       </div>
     </div>

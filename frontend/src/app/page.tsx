@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
-import { Hero } from '@/components/ui/animated-hero';
+import { ChevronDown, Heart, SlidersHorizontal } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 interface Product {
   _id: string;
@@ -32,97 +32,128 @@ export default function Home() {
     fetchProducts();
   }, []);
 
+  const addToCart = async (productId: string, e: React.MouseEvent) => {
+    e.preventDefault(); // prevent link navigation if placed inside one
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+      try {
+        await api.post('/cart', { product_id: productId, quantity: 1 });
+        toast.success('Added to Cart');
+      } catch (err) {
+        toast.error('Failed to add to cart');
+      }
+    } else {
+      // Guest cart logic
+      const cartStr = localStorage.getItem('guest_cart');
+      let cart = cartStr ? JSON.parse(cartStr) : [];
+      const existing = cart.find((i: any) => i.product_id === productId);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({ product_id: productId, quantity: 1 });
+      }
+      localStorage.setItem('guest_cart', JSON.stringify(cart));
+      toast.success('Added to Cart (Guest)');
+    }
+  };
+
   return (
-    <div className="w-full bg-[#0d0d0d] min-h-screen">
-      <Hero />
-      
-      {/* Intro Text Banner */}
-      <div className="border-b border-[#ffffff]/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row justify-between items-start md:items-center">
-          <div className="text-[#808080] text-sm uppercase tracking-widest font-bold mb-4 md:mb-0">
-            NexusMarket is a high-performance<br/>
-            e-commerce engine that turns<br/>
-            shopping into pure instinct.
-          </div>
-          <div className="flex gap-4">
-            <div className="w-32 h-24 bg-[#F95724] flex items-center justify-center flex-col">
-              <span className="text-3xl font-black text-white">75<span className="text-lg">%</span></span>
-              <span className="text-[10px] text-white/80 uppercase font-bold tracking-widest">Efficiency</span>
-            </div>
-            <div className="w-32 h-24 border border-[#ffffff]/10 flex items-center justify-center flex-col">
-               <span className="text-3xl font-black text-white">16<span className="text-lg">%</span></span>
-               <span className="text-[10px] text-[#808080] uppercase font-bold tracking-widest">Growth</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div className="w-full bg-[#f8f9fa] min-h-screen pt-24 pb-20">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Header */}
-        <div className="flex items-start mb-16">
-          <h2 className="text-7xl font-bold tracking-tighter text-white mr-4">03<span className="text-[#F95724]">/</span></h2>
-          <div className="flex flex-col mt-2">
-             <span className="text-sm font-bold uppercase tracking-widest text-[#F95724]">Storefront</span>
-             <span className="text-xs uppercase tracking-wider text-[#808080] mt-1">Available Products</span>
+        {/* Hero Banner */}
+        <div className="bg-[#f0e8d5] rounded-xl overflow-hidden mb-12 relative flex items-center min-h-[400px]">
+          <div className="w-1/2 p-12 lg:p-20 z-10">
+            <h1 className="text-4xl lg:text-6xl font-bold text-[#004d40] leading-tight mb-8">
+              Grab Upto 50% Off On Selected Headphone
+            </h1>
+            <button className="bg-[#004d40] text-white px-8 py-3 rounded-full font-medium hover:bg-[#00332a] transition-colors">
+              Buy Now
+            </button>
+          </div>
+          <div className="absolute right-0 top-0 w-1/2 h-full flex justify-end">
+            <img 
+              src="/images/hero.png" 
+              alt="Woman listening to headphones" 
+              className="h-full object-cover object-left"
+            />
           </div>
         </div>
 
+        {/* Filters Row */}
+        <div className="flex flex-wrap items-center justify-between mb-12 gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            {['Headphone Type', 'Price', 'Review', 'Color', 'Material', 'Offer'].map(filter => (
+              <button key={filter} className="bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-medium text-gray-700 flex items-center hover:bg-gray-50">
+                {filter} <ChevronDown className="ml-2 w-4 h-4 text-gray-400" />
+              </button>
+            ))}
+            <button className="bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-medium text-gray-700 flex items-center hover:bg-gray-50">
+              All Filters <SlidersHorizontal className="ml-2 w-4 h-4 text-gray-400" />
+            </button>
+          </div>
+          <button className="bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-medium text-gray-700 flex items-center hover:bg-gray-50">
+            Sort by <ChevronDown className="ml-2 w-4 h-4 text-gray-400" />
+          </button>
+        </div>
+
+        {/* Section Title */}
+        <h2 className="text-2xl font-bold text-gray-900 mb-8">Headphones For You!</h2>
+
+        {/* Product Grid */}
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-none h-12 w-12 border-4 border-[#1a1a1a] border-t-[#F95724]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#004d40]"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map((product) => (
-              <div key={product._id} className="group border border-[#ffffff]/10 bg-[#0d0d0d] hover:border-[#F95724]/50 transition-colors duration-300">
-                <div className="aspect-w-4 aspect-h-3 bg-[#1a1a1a] relative overflow-hidden">
-                  {product.image_url ? (
-                    <img src={product.image_url} alt={product.name} className="object-cover w-full h-64 mix-blend-luminosity opacity-70 group-hover:opacity-100 group-hover:mix-blend-normal transition-all duration-500" />
-                  ) : (
-                    <div className="w-full h-64 flex items-center justify-center">
-                       <div className="w-20 h-20 border border-[#ffffff]/10 rounded-full flex items-center justify-center">
-                         <div className="w-2 h-2 bg-[#F95724] rounded-full"></div>
-                       </div>
+              <div key={product._id} className="bg-white rounded-xl p-4 relative group hover:shadow-lg transition-shadow duration-300">
+                {/* Heart Icon */}
+                <button className="absolute top-4 right-4 z-10 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+                  <Heart className="w-4 h-4 text-gray-500" />
+                </button>
+
+                <Link href={`/products/${product._id}`} className="block">
+                  {/* Image Container */}
+                  <div className="bg-gray-50 rounded-lg aspect-square mb-4 flex items-center justify-center overflow-hidden p-4">
+                    <img 
+                      src={product.image_url || '/api/placeholder/400/400'} 
+                      alt={product.name} 
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+
+                  {/* Details */}
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="font-bold text-gray-900 truncate pr-4">{product.name}</h3>
+                    <span className="font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                  </div>
+                  
+                  <p className="text-xs text-gray-500 mb-3 truncate">{product.description}</p>
+                  
+                  {/* Stars */}
+                  <div className="flex items-center mb-4">
+                    <div className="flex text-green-500 text-sm">
+                      ★★★★★
                     </div>
-                  )}
-                  <div className="absolute top-4 right-4 bg-[#0d0d0d] border border-[#ffffff]/10 px-2 py-1 text-xs font-bold text-white tracking-widest">
-                    ${product.price.toFixed(2)}
+                    <span className="text-xs text-gray-500 ml-2">(121)</span>
                   </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-xl font-bold text-white uppercase tracking-wider">{product.name}</h3>
-                  </div>
-                  <p className="text-[#808080] text-sm mb-6 line-clamp-2 uppercase tracking-wide leading-relaxed">{product.description}</p>
-                  <Link href={`/products/${product._id}`} className="inline-flex items-center text-xs font-bold tracking-widest uppercase text-white hover:text-[#F95724] transition-colors group-hover:translate-x-2 duration-300">
-                    View Specs <ArrowUpRight className="ml-2 w-4 h-4" />
-                  </Link>
-                </div>
+                </Link>
+                
+                {/* Add to Cart */}
+                <button 
+                  onClick={(e) => addToCart(product._id, e)}
+                  className="w-32 bg-white border border-gray-900 text-gray-900 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-900 hover:text-white transition-colors"
+                >
+                  Add to Cart
+                </button>
               </div>
             ))}
           </div>
         )}
-      </div>
 
-      {/* Marquee Footer / Data Grid */}
-      <div className="border-t border-[#ffffff]/10 py-20 mt-12">
-         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="border border-[#ffffff]/10 p-8 flex flex-col justify-between h-48">
-               <h4 className="text-5xl font-black text-white tracking-tighter">&gt;230<span className="text-[#F95724]">K</span></h4>
-               <p className="text-[10px] text-[#808080] uppercase tracking-widest font-bold">Active Users Globally</p>
-            </div>
-            <div className="border border-[#ffffff]/10 p-8 flex flex-col justify-between h-48">
-               <h4 className="text-5xl font-black text-white tracking-tighter">320<span className="text-[#F95724]">+</span></h4>
-               <p className="text-[10px] text-[#808080] uppercase tracking-widest font-bold">Hardware Integrations</p>
-            </div>
-            <div className="bg-[#F95724] p-8 flex flex-col justify-center items-center h-48 hover:bg-[#d84618] cursor-pointer transition-colors">
-               <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center mb-4">
-                 <div className="w-2 h-2 bg-white rounded-full"></div>
-               </div>
-               <p className="text-xs text-white uppercase tracking-widest font-bold text-center">Read The<br/>Full Docs</p>
-            </div>
-         </div>
       </div>
     </div>
   );

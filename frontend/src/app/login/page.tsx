@@ -2,85 +2,62 @@
 import { useState } from 'react';
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { toast } from 'react-hot-toast';
+import Link from 'next/link';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', res.data.access_token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      
-      // Sync guest cart
-      const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-      if (guestCart.length > 0) {
-        for (const item of guestCart) {
-          try {
-            await api.post('/cart', { product_id: item.product_id, quantity: item.quantity }, {
-              headers: { Authorization: `Bearer ${res.data.access_token}` }
-            });
-          } catch(e) { console.error('Failed to sync guest item', e); }
-        }
-        localStorage.removeItem('guest_cart');
-      }
-      
-      window.location.href = '/';
-    } catch (err: any) {
-      toast.error(err.message || 'Login failed');
+      const res: any = await api.post('/auth/login', { username, password });
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify({ username }));
+      toast.success('Logged in successfully');
+      router.push('/dashboard');
+    } catch (err) {
+      toast.error('Invalid credentials');
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="border border-[#ffffff]/10 bg-[#1a1a1a] p-8 md:p-12 shadow-2xl relative overflow-hidden">
-          {/* Tech accents */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#F95724] to-transparent opacity-50"></div>
-          <div className="absolute top-4 left-4 w-2 h-2 bg-[#F95724] rounded-full"></div>
-          
-          <h2 className="text-4xl font-black text-white text-center mb-2 tracking-tighter uppercase">Authentication</h2>
-          <p className="text-center text-[#808080] text-xs font-bold uppercase tracking-widest mb-12">System Access Protocol</p>
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-xs font-bold text-[#808080] uppercase tracking-widest mb-2">Email Identity</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[#0d0d0d] border border-[#ffffff]/10 p-4 text-white focus:outline-none focus:border-[#F95724] transition-colors"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-[#808080] uppercase tracking-widest mb-2">Access Key</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#0d0d0d] border border-[#ffffff]/10 p-4 text-white focus:outline-none focus:border-[#F95724] transition-colors"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-[#F95724] hover:bg-[#d84618] text-white font-bold uppercase tracking-widest py-4 transition-colors shadow-[0_0_15px_rgba(249,87,36,0.2)] mt-8"
-            >
-              Initialize Session
-            </button>
-          </form>
-          <div className="mt-8 text-center border-t border-[#ffffff]/10 pt-8">
-            <Link href="/register" className="text-xs font-bold uppercase tracking-widest text-[#808080] hover:text-[#F95724] transition-colors">
-              Request New Clearance
-            </Link>
-          </div>
+    <div className="flex items-center justify-center min-h-screen bg-[#f8f9fa] pt-20 pb-20">
+      <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+          <p className="text-gray-500">Sign in to your Shopcart account</p>
         </div>
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+            <input 
+              type="text" 
+              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#004d40]/20 focus:border-[#004d40] transition-colors"
+              placeholder="Enter your username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <input 
+              type="password" 
+              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#004d40]/20 focus:border-[#004d40] transition-colors"
+              placeholder="Enter your password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
+          </div>
+          <button type="submit" className="w-full bg-[#004d40] hover:bg-[#00332a] text-white font-bold py-3 rounded-full transition-colors">
+            Sign In
+          </button>
+        </form>
+        <p className="mt-6 text-center text-sm text-gray-600">
+          Don't have an account? <Link href="/register" className="text-[#004d40] font-bold hover:underline">Register</Link>
+        </p>
       </div>
     </div>
   );

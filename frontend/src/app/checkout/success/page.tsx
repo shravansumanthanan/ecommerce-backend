@@ -1,60 +1,57 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
-import { Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { CheckCircle } from 'lucide-react';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('order_id');
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
-    <div className="border border-[#ffffff]/10 bg-[#1a1a1a] p-8 md:p-16 shadow-2xl text-center relative overflow-hidden">
-      {/* Tech accents */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#F95724] to-transparent opacity-50"></div>
-      
-      <div className="mb-8 flex justify-center">
-        <div className="w-24 h-24 rounded-full border border-[#F95724]/30 flex items-center justify-center bg-[#F95724]/10 relative">
-          <div className="absolute inset-0 rounded-full animate-ping border border-[#F95724] opacity-20"></div>
-          <CheckCircle2 className="h-12 w-12 text-[#F95724]" />
-        </div>
-      </div>
-      
-      <h2 className="text-4xl font-black text-white text-center mb-4 tracking-tighter uppercase">Transaction Verified</h2>
-      <p className="text-center text-[#808080] text-sm uppercase tracking-widest leading-relaxed mb-12">
-        Payment successfully processed.<br/>
-        Systems are preparing your modules.
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <CheckCircle className="w-20 h-20 text-[#004d40] mb-6" />
+      <h2 className="text-3xl font-bold text-gray-900 mb-4">Order Placed Successfully!</h2>
+      <p className="text-gray-600 mb-8 max-w-md">
+        Thank you for shopping with us. Your order has been received and is being processed.
       </p>
-
+      
       {orderId && (
-        <div className="mb-12 border-y border-[#ffffff]/10 py-6">
-          <span className="block text-xs font-bold text-[#808080] uppercase tracking-widest mb-2">Order Reference Code</span>
-          <code className="text-[#F95724] font-mono text-lg bg-[#0d0d0d] px-4 py-2 border border-[#F95724]/20 block max-w-xs mx-auto break-all">
-            {orderId}
-          </code>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8 inline-block w-full max-w-md">
+          <p className="text-xs text-gray-500 uppercase font-medium mb-1">Order Number</p>
+          <p className="font-mono text-gray-900 font-bold">{orderId}</p>
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
-        <Link 
-          href="/" 
-          className="inline-flex items-center text-[#808080] hover:text-white font-bold uppercase tracking-widest transition-colors text-xs"
+      <div className="flex gap-4">
+        <button 
+          onClick={() => router.push('/dashboard')} 
+          className="bg-[#004d40] text-white px-8 py-3 rounded-full font-bold hover:bg-[#00332a] transition-colors"
         >
-          Return to Hub <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
+          View Order History
+        </button>
+        <button 
+          onClick={() => router.push('/')} 
+          className="bg-white border border-[#004d40] text-[#004d40] px-8 py-3 rounded-full font-bold hover:bg-gray-50 transition-colors"
+        >
+          Continue Shopping
+        </button>
       </div>
     </div>
   );
 }
 
-export default function CheckoutSuccess() {
+export default function SuccessStep() {
   return (
-    <div className="min-h-screen bg-[#0d0d0d] flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        <Suspense fallback={<div className="flex justify-center"><div className="animate-spin rounded-none h-12 w-12 border-4 border-[#1a1a1a] border-t-[#F95724]"></div></div>}>
-          <SuccessContent />
-        </Suspense>
-      </div>
-    </div>
+    <Suspense fallback={<div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-[#004d40]"></div></div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }

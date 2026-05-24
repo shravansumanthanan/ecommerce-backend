@@ -15,20 +15,20 @@ export default function CheckoutLayout({ children }: { children: React.ReactNode
   ];
 
   return (
-    <div className="w-full bg-[#0d0d0d] min-h-screen pt-24 pb-12 text-white">
+    <div className="w-full bg-[#f8f9fa] min-h-screen pt-24 pb-20 text-gray-900">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Progress Bar */}
-        <div className="mb-12 border-b border-[#ffffff]/10 pb-8">
-          <h1 className="text-4xl font-black tracking-tighter uppercase mb-6">Secure Checkout</h1>
-          <div className="flex justify-between items-center relative">
-            <div className="absolute left-0 top-1/2 w-full h-[1px] bg-[#ffffff]/10 -z-10"></div>
+        <div className="mb-12 border-b border-gray-200 pb-8">
+          <h1 className="text-3xl font-bold mb-8 text-center text-gray-900">Secure Checkout</h1>
+          <div className="flex justify-between items-center relative px-8">
+            <div className="absolute left-0 top-1/2 w-full h-[2px] bg-gray-200 -z-10"></div>
             {steps.map((step) => (
-              <div key={step.id} className="flex flex-col items-center bg-[#0d0d0d] px-4">
-                <div className={`w-8 h-8 flex items-center justify-center font-bold text-xs border ${step.active ? 'border-[#F95724] text-[#F95724]' : 'border-[#ffffff]/20 text-[#808080]'}`}>
-                  {step.id === 'shipping' ? '01' : step.id === 'payment' ? '02' : '03'}
+              <div key={step.id} className="flex flex-col items-center bg-[#f8f9fa] px-4">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${step.active ? 'bg-[#004d40] text-white border-4 border-green-100' : 'bg-gray-200 text-gray-500'}`}>
+                  {step.id === 'shipping' ? '1' : step.id === 'payment' ? '2' : '3'}
                 </div>
-                <span className={`mt-2 text-[10px] uppercase tracking-widest font-bold ${step.active ? 'text-white' : 'text-[#808080]'}`}>
+                <span className={`mt-3 text-xs font-bold ${step.active ? 'text-[#004d40]' : 'text-gray-500'}`}>
                   {step.label}
                 </span>
               </div>
@@ -37,7 +37,7 @@ export default function CheckoutLayout({ children }: { children: React.ReactNode
         </div>
 
         {/* Content */}
-        <div className="bg-[#1a1a1a] border border-[#ffffff]/10 p-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
           {children}
         </div>
 

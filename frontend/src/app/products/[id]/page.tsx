@@ -1,18 +1,18 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import { ShoppingCart, ArrowLeft, Cpu } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { Truck, RotateCcw } from 'lucide-react';
 
 export default function ProductDetails() {
   const params = useParams();
   const router = useRouter();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [adding, setAdding] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -29,7 +29,6 @@ export default function ProductDetails() {
   }, [params.id]);
 
   const addToCart = async () => {
-    setAdding(true);
     try {
       if (!localStorage.getItem('token')) {
         const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
@@ -40,103 +39,154 @@ export default function ProductDetails() {
           guestCart.push({ product_id: product._id, quantity, product });
         }
         localStorage.setItem('guest_cart', JSON.stringify(guestCart));
-        toast.success('Module added to offline manifest');
+        toast.success('Added to Cart (Guest)');
       } else {
         await api.post('/cart', { product_id: product._id, quantity });
-        toast.success('Module added to manifest');
+        toast.success('Added to Cart');
       }
     } catch (err) {
       console.error(err);
-      toast.error('System Error: Could not process request.');
-    } finally {
-      setAdding(false);
+      toast.error('Failed to add to cart.');
     }
   };
 
-  if (loading) return <div className="flex justify-center py-20 bg-[#0d0d0d] min-h-screen"><div className="animate-spin rounded-none h-12 w-12 border-4 border-[#1a1a1a] border-t-[#F95724]"></div></div>;
-  if (!product) return <div className="text-center py-20 text-[#808080] bg-[#0d0d0d] min-h-screen font-bold uppercase tracking-widest">Product not found</div>;
+  const buyNow = async () => {
+    await addToCart();
+    router.push('/checkout/shipping');
+  };
+
+  if (loading) return <div className="flex justify-center py-32 min-h-screen bg-white"><div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#004d40]"></div></div>;
+  if (!product) return <div className="text-center py-32 bg-white min-h-screen text-gray-500 font-medium">Product not found</div>;
+
+  const colors = ['bg-red-400', 'bg-gray-800', 'bg-green-200', 'bg-gray-200', 'bg-blue-300'];
+  const monthly = (product.price / 6).toFixed(2);
 
   return (
-    <div className="w-full bg-[#0d0d0d] min-h-screen pt-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Link href="/" className="inline-flex items-center text-[#808080] hover:text-[#F95724] mb-12 transition-colors font-bold uppercase tracking-widest text-xs">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Terminal
-        </Link>
+    <div className="w-full bg-white min-h-screen pt-24 pb-20">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 border border-[#ffffff]/10 p-8 md:p-12">
-          {/* Image Panel */}
-          <div className="bg-[#1a1a1a] border border-[#ffffff]/10 flex items-center justify-center min-h-[500px] relative overflow-hidden group">
-            {product.image_url ? (
-              <img src={product.image_url} alt={product.name} className="object-cover w-full h-full absolute inset-0 mix-blend-luminosity opacity-70 group-hover:opacity-100 group-hover:mix-blend-normal transition-all duration-700" />
-            ) : (
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <Cpu className="w-16 h-16 text-[#F95724] opacity-50" />
-                <span className="text-[#808080] text-xs font-bold uppercase tracking-widest">No Visual Data</span>
-              </div>
-            )}
-            
-            {/* Tech Overlays */}
-            <div className="absolute top-4 left-4 text-[10px] text-[#F95724] font-bold uppercase tracking-widest border border-[#F95724] px-2 py-1">
-              SYS_IMG_01
+        {/* Breadcrumbs */}
+        <div className="text-sm text-gray-500 mb-12 flex space-x-2">
+          <Link href="/">Electronics</Link>
+          <span>/</span>
+          <Link href="/">Audio</Link>
+          <span>/</span>
+          <Link href="/">Headphones</Link>
+          <span>/</span>
+          <span className="font-bold text-gray-900">{product.name}</span>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          
+          {/* Left Column: Images */}
+          <div>
+            <div className="bg-[#f5f5f5] rounded-xl flex items-center justify-center p-12 aspect-square mb-6 overflow-hidden">
+              <img 
+                src={product.image_url || '/api/placeholder/800/800'} 
+                alt={product.name} 
+                className="w-full h-full object-contain"
+              />
             </div>
-            <div className="absolute bottom-4 right-4 text-[10px] text-[#808080] font-bold uppercase tracking-widest">
-              [ {product._id.slice(0, 8)} ]
+            {/* Thumbnails */}
+            <div className="grid grid-cols-4 gap-4">
+               {[1, 2, 3, 4].map(i => (
+                 <div key={i} className="bg-[#f5f5f5] rounded-lg p-4 aspect-square flex items-center justify-center cursor-pointer hover:border-[#004d40] border border-transparent transition-colors">
+                   <img src={product.image_url || '/api/placeholder/200/200'} className="w-full h-full object-contain" />
+                 </div>
+               ))}
             </div>
           </div>
 
-          {/* Details Panel */}
-          <div className="flex flex-col justify-center">
-            <div className="flex items-center mb-6 space-x-4">
-              <span className="text-xs font-bold text-[#F95724] tracking-widest uppercase border border-[#F95724]/30 px-3 py-1 bg-[#F95724]/10">
-                {product.category}
-              </span>
-              <span className={`text-xs font-bold uppercase tracking-widest ${product.stock > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {product.stock > 0 ? 'Systems Nominal' : 'Depleted'}
-              </span>
+          {/* Right Column: Details */}
+          <div className="flex flex-col pt-4">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">{product.name}</h1>
+            <p className="text-gray-600 mb-4 leading-relaxed max-w-lg">{product.description}</p>
+            
+            <div className="flex items-center mb-8">
+              <div className="flex text-green-500 text-sm">★★★★★</div>
+              <span className="text-sm text-gray-500 ml-2">(121)</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-black text-white mb-4 uppercase tracking-tighter leading-none">
-              {product.name}
-            </h1>
-            
-            <div className="flex items-baseline mb-8 mt-4 border-l-2 border-[#F95724] pl-4">
-              <span className="text-4xl font-black text-white tracking-tighter">${product.price.toFixed(2)}</span>
-              <span className="ml-2 text-xs text-[#808080] uppercase tracking-widest font-bold">Base Value</span>
+            <div className="mb-8 border-b border-gray-200 pb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                ${product.price.toFixed(2)} <span className="font-normal text-xl">or {monthly}/month</span>
+              </h2>
+              <p className="text-sm text-gray-500">Suggested payments with 6 months special financing</p>
             </div>
             
-            <div className="border-t border-[#ffffff]/10 py-8 mb-8">
-               <h3 className="text-sm font-bold uppercase tracking-widest text-white mb-4">Module Specifications</h3>
-               <p className="text-[#808080] leading-relaxed text-sm">
-                 {product.description}
-               </p>
-            </div>
-            
-            <div className="flex space-x-4">
-              <div className="flex items-center border border-[#ffffff]/20">
-                <button 
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  className="w-12 h-full flex items-center justify-center text-white hover:text-[#F95724] hover:bg-[#1a1a1a] transition-colors font-bold text-xl"
-                >-</button>
-                <span className="w-12 text-center text-white font-bold">{quantity}</span>
-                <button 
-                  onClick={() => setQuantity(q => q + 1)}
-                  className="w-12 h-full flex items-center justify-center text-white hover:text-[#F95724] hover:bg-[#1a1a1a] transition-colors font-bold text-xl"
-                >+</button>
+            {/* Colors */}
+            <div className="mb-8 border-b border-gray-200 pb-8">
+              <h3 className="font-bold text-gray-900 mb-4">Choose a Color</h3>
+              <div className="flex space-x-4">
+                {colors.map((color, idx) => (
+                  <button 
+                    key={idx}
+                    onClick={() => setSelectedColor(idx)}
+                    className={`w-10 h-10 rounded-full border-2 ${selectedColor === idx ? 'border-[#004d40] p-1' : 'border-transparent'}`}
+                  >
+                    <div className={`w-full h-full rounded-full ${color}`}></div>
+                  </button>
+                ))}
               </div>
-              <button
-                onClick={addToCart}
-                disabled={product.stock === 0 || adding}
-                className="flex-grow bg-[#F95724] hover:bg-[#d84618] text-white font-bold uppercase tracking-widest py-6 px-8 transition-all flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_30px_rgba(249,87,36,0.4)]"
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center space-x-6 mb-12">
+              <div className="flex items-center bg-gray-100 rounded-full px-4 py-3">
+                <button 
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="text-gray-500 hover:text-gray-900 px-2"
+                >
+                  -
+                </button>
+                <span className="font-bold text-gray-900 mx-4 w-4 text-center">{quantity}</span>
+                <button 
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="text-gray-500 hover:text-gray-900 px-2"
+                >
+                  +
+                </button>
+              </div>
+              
+              <div className="text-sm">
+                <p>Only <span className="text-orange-500 font-bold">12 Items</span> Left!</p>
+                <p className="text-gray-500">Don't miss it</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 mb-12">
+              <button 
+                onClick={buyNow}
+                className="flex-1 bg-[#004d40] text-white px-8 py-4 rounded-full font-bold hover:bg-[#00332a] transition-colors"
               >
-              {adding ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : product.stock > 0 ? (
-                <><ShoppingCart className="mr-3 h-5 w-5" /> Initialize Checkout</>
-              ) : (
-                'Inventory Depleted'
-              )}
+                Buy Now
+              </button>
+              <button 
+                onClick={addToCart}
+                className="flex-1 bg-white border border-[#004d40] text-[#004d40] px-8 py-4 rounded-full font-bold hover:bg-gray-50 transition-colors"
+              >
+                Add to Cart
               </button>
             </div>
+            
+            {/* Delivery Info */}
+            <div className="border border-gray-200 rounded-xl overflow-hidden">
+              <div className="p-6 border-b border-gray-200 flex items-start">
+                <Truck className="text-orange-500 w-6 h-6 mr-4 mt-1 flex-shrink-0" />
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-1">Free Delivery</h4>
+                  <Link href="#" className="text-sm text-gray-500 underline hover:text-[#004d40]">Enter your Postal code for Delivery Availability</Link>
+                </div>
+              </div>
+              <div className="p-6 flex items-start">
+                <RotateCcw className="text-orange-500 w-6 h-6 mr-4 mt-1 flex-shrink-0" />
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-1">Return Delivery</h4>
+                  <p className="text-sm text-gray-500">Free 30days Delivery Returns. <Link href="#" className="underline hover:text-[#004d40]">Details</Link></p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
